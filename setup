@@ -1,0 +1,80 @@
+#!/bin/bash
+#======================================================================================
+# Configure an instance of Ubuntu Linux to support the class project for a Java
+# TDD and OO Design course.
+#
+# Arguments:
+# (None)		
+#
+# Version: 1.0.0
+# Date: 27-Apr-2014
+# Author: Dave Nicolette
+#======================================================================================
+export INSTALL_DIR="$HOME/provision-point-of-sale-vm"
+export COMMON_DIR="provision-ubuntu-common"
+export PROJECT_DIR="provision-point-of-sale"
+
+git clone "git://github.com/neopragma/$COMMON_DIR"
+
+"./$COMMON_DIR/install_build_support"
+"./$COMMON_DIR/install_sublime_text_3"
+sudo apt-get -y -f install aptitude curl
+
+echo
+echo '============================================================='
+echo 'Setting the desktop background image...'
+
+mkdir -p "$HOME/.backgrounds"
+cp -f java-background.png "$HOME/.backgrounds/."
+gsettings set org.gnome.desktop.background picture-uri file:///home/neopragma/.backgrounds/java-background.png
+
+echo
+echo '============================================================='
+echo 'Installing Java Development Kit...'
+
+sudo apt-get install -y -f openjdk-7-jdk
+
+echo
+echo '============================================================='
+echo 'Installing Maven...'
+
+sudo apt-get install -y -f maven
+
+# =============================================================
+# Installing Eclipse...
+
+"./$COMMON_DIR/install_eclipse_kepler"
+
+echo
+echo '============================================================='
+echo 'Installing RVM, Ruby, and Bundler...'
+
+\curl -sSL https://get.rvm.io | bash -s stable --ruby=2.0.0
+gem install bundler
+
+echo
+echo '============================================================='
+echo 'Clone the class project repo...'
+
+pushd ~/workspace
+git clone https://github.com/neopragma/point-of-sale
+popd
+
+pushd ~
+. .bashrc
+popd
+
+pushd ~/workspace/point-of-sale/credit-authorization
+bundle install
+ruby authserver.rb &
+cd ..
+mvn clean install
+popd
+
+
+
+
+
+
+
+

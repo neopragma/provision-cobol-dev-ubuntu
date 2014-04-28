@@ -1,0 +1,57 @@
+#!/bin/bash
+#===============================================================================
+# See if this instance appears to have everything installed as expected for a
+# base configuration for development environments.
+#
+# Version: 1.0.0 
+# Date: 25 Dec 2014
+# Author: Dave Nicolette
+#===============================================================================
+echo 'Verifying configuration of Ubuntu instance...'
+
+declare -i errors=0
+
+declare -a pkg
+pkg[${#pkg[@]}]='git'
+pkg[${#pkg[@]}]='build-essential'
+pkg[${#pkg[@]}]="linux-headers-$(uname -r)"
+pkg[${#pkg[@]}]='dkms'
+pkg[${#pkg[@]}]='python-software-properties'
+pkg[${#pkg[@]}]='lxappearance'
+pkg[${#pkg[@]}]='sublime-text-installer'
+pkg[${#pkg[@]}]='yakuake'
+pkg[${#pkg[@]}]='kupfer'
+pkg[${#pkg[@]}]='speedcrunch'
+pkg[${#pkg[@]}]='shutter'
+pkg[${#pkg[@]}]='openssh-client'
+pkg[${#pkg[@]}]='openssh-server'
+pkg[${#pkg[@]}]='xarchiver'
+pkg[${#pkg[@]}]='thunar-archive-plugin'
+pkg[${#pkg[@]}]='epiphany-browser'
+pkg[${#pkg[@]}]='epiphany-extensions'
+pkg[${#pkg[@]}]='gnome-icon-theme-symbolic'
+
+for name in "${pkg[@]}"
+do
+  if [[ -n "$(aptitude search ${name})" ]]; then 
+      echo "package ${name} is installed"
+  else
+      echo "package ${name} was expected but is not installed - ERROR"
+      errors="${errors}+1"
+  fi 
+done
+
+declare -a app
+app[${#app[@]}]="$HOME/.dropbox-dist"
+
+for name in "${app[@]}"
+do
+  if [[ -e "${name}" ]]; then 
+      echo "${name} is present"
+  else
+      echo "${name} was expected but is not installed - ERROR"
+      errors="${errors}+1"
+  fi 
+done
+
+test "${errors}" -eq 0 && echo "...configuration is as expected." || echo "...${errors} expected package(s) or application(s) not found! Configuration may not function as desired." 
