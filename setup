@@ -1,32 +1,22 @@
 #!/bin/bash
 #======================================================================================
-# Configure an instance of Ubuntu Linux to support the class project for a Java
-# TDD and OO Design course.
+# Configure an instance of Ubuntu Linux to support Java development training courses.
 #
 # Arguments:
 # (None)		
 #
-# Version: 1.0.0
-# Date: 27-Apr-2014
+# Version: 1.1.0
+# Date: 03-May-2014
 # Author: Dave Nicolette
 #======================================================================================
-export INSTALL_DIR="$HOME/provision-point-of-sale-vm"
+export INSTALL_DIR="$HOME/provision-java-dev-training-vm"
 export COMMON_DIR="provision-ubuntu-common"
-export PROJECT_DIR="provision-point-of-sale"
 
 git clone "git://github.com/neopragma/$COMMON_DIR"
 
 "./$COMMON_DIR/install_build_support"
 "./$COMMON_DIR/install_sublime_text_3"
 sudo apt-get -y -f install aptitude curl
-
-echo
-echo '============================================================='
-echo 'Setting the desktop background image...'
-
-mkdir -p "$HOME/.backgrounds"
-cp -f java-background.png "$HOME/.backgrounds/."
-gsettings set org.gnome.desktop.background picture-uri file:///home/neopragma/.backgrounds/java-background.png
 
 echo
 echo '============================================================='
@@ -52,29 +42,6 @@ echo 'Installing RVM, Ruby, and Bundler...'
 \curl -sSL https://get.rvm.io | bash -s stable --ruby=2.0.0
 gem install bundler
 
-echo
-echo '============================================================='
-echo 'Clone the class project repo...'
-
-pushd ~/workspace
-git clone https://github.com/neopragma/point-of-sale
-popd
-
-pushd ~
-. .bashrc
-popd
-
-pushd ~/workspace/point-of-sale/credit-authorization
-bundle install
-ruby authserver.rb &
-cd ..
-mvn clean install
-popd
-
-
-
-
-
-
+./verify
 
 
