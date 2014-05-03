@@ -46,10 +46,10 @@ do
   fi 
 done
 
-if [[ "$(rvm current)" == "ruby-2.0.0-p451" ]]; then
-    echo "ruby 2.0.0 is installed with rvm"
+if [[ "$(rvm current)" == "ruby-2.1.1" ]]; then
+    echo "ruby 2.1.1 is installed with rvm"
 else
-    echo "ruby 2.0.0 / rvm expected but is not installed - ERROR"
+    echo "ruby 2.1.1 / rvm expected but is not installed - ERROR"
 fi
 
 
