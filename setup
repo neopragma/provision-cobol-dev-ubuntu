@@ -53,7 +53,7 @@ echo 'Setting the desktop background image...'
 
 mkdir -p "$HOME/.backgrounds"
 cp -f java-background.png "$HOME/.backgrounds/."
-gsettings set org.gnome.desktop.background picture-uri file:///home/neopragma/.backgrounds/java-background.png
+gsettings set org.gnome.desktop.background picture-uri file:///home/student/.backgrounds/java-background.png
 
 ./verify
 
