@@ -20,6 +20,12 @@ sudo apt-get -y -f install aptitude curl
 
 echo
 echo '============================================================='
+echo 'Installing Microsoft TrueType fonts...'
+
+sudo apt-get install -y -f ttf-mscorefonts-installer
+
+echo
+echo '============================================================='
 echo 'Installing Java Development Kit...'
 
 sudo apt-get install -y -f openjdk-7-jdk
