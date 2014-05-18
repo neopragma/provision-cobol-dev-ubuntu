@@ -46,6 +46,7 @@ do
   fi 
 done
 
+source "$HOME/.rvm/scripts/rvm"
 if [[ "$(rvm current)" == "ruby-2.1.1" ]]; then
     echo "ruby 2.1.1 is installed with rvm"
 else
