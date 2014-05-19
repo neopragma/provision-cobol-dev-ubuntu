@@ -57,6 +57,10 @@ echo
 echo '============================================================='
 echo 'Setting the desktop background image...'
 
+
+# Install ArgoUML
+./install_argouml
+
 mkdir -p "$HOME/.backgrounds"
 cp -f java-background.png "$HOME/.backgrounds/."
 gsettings set org.gnome.desktop.background picture-uri file:///home/student/.backgrounds/java-background.png
