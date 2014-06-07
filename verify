@@ -47,10 +47,10 @@ do
 done
 
 source "$HOME/.rvm/scripts/rvm"
-if [[ "$(rvm current)" == "ruby-2.1.1" ]]; then
-    echo "ruby 2.1.1 is installed with rvm"
+if [[ "$(rvm --version)" ]]; then
+    echo "$(rvm current) is installed with rvm"
 else
-    echo "ruby 2.1.1 / rvm expected but is not installed - ERROR"
+    echo "rvm expected but is not installed - ERROR"
     errors="${errors}+1"
 fi
 
