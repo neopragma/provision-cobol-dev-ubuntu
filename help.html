@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Automated testing for Cobol programs</title>
+<style>
+h1, h2, h3, h4 {
+	font-family: Verdana, Arial, Lucida Sans, sans-serif;	
+	color: #036;
+}
+li {
+	margin-top: 8px;
+}
+.box {
+    border: 1px dashed black;
+    background-color: #eee;
+    padding-left: 8px;
+}
+.code {
+    font-family: Courier New, monospaced;
+    font-weight: bold;
+}
+.sidebar {
+	font-family: Verdana, Arial, Lucida Sans, sans-serif;
+	font-size: 90%;
+	background-color: #eef;
+	padding-left: 8px;
+	padding-right: 8px;
+	margin-left: 24px;
+	margin-right: 24px;
+}
+</style>
+</head>
+<body>
+
+<h1>Automated testing for Cobol programs</h1>
+<p>
+Automated testing has become a standard and expected practice for many kinds of applications written in many different languages for many different platforms, but it is a latecomer in the mainframe Cobol world. Most programmers who support mainframe Cobol applications don't use automated testing. Many have never even heard of it. Test-first development is even less common in the mainframe world.
+</p>
+<p>
+IBM has never stopped evolving the mainframe platform to keep up with the times. Today, the venerable online transaction monitor CICS can be used as a high-end HTTP server hosting web applications written in Java and built with test-driven development using JUnit; not very different from similar technology stacks on other platforms. That's great news for the relatively few shops that use CICS in that way, but it is not the problem facing the majority of corporate IT shops. 
+</p>
+<p>
+Far and away the most typical case is the IT shop that has a significant number of legacy Cobol applications, both batch and online, that encapsulate core business rules supporting mission-critical operations. These applications were written long ago and do not follow contemporary software design conventions. It is no small task to migrate these applications off the mainframe platform. As long as IBM continues support for the platform, these applications can live on indefinitely. Often, there is no practical business case to justify rewriting them. 
+</p>
+<p>
+The applications are supported by programmers who are not in the habit of writing automated test cases. The practice simply has not become part of the mainframe programming culture. Even if it crossed their minds to do so, most mainframe programmers would have to roll their own tools to make it happen. IBM does sell tools to support this, but an IT department that is not doing new development in Cobol will have a hard time justifying the expense. We have to deal with the applications as they are.
+</p>
+<p>
+Regardless of the difficulties, the pace of change has become so rapid that companies simply can't take as much time to get software changes into production as they used to. Modifications to legacy applications have the same short time to market requirements as new applications running on other platforms. That means we must find ways to minimize defects through test-driven development and deliver rapidly through automation of system testing and deployment. This sandbox environment offers some examples and suggestions for bringing legacy batch and CICS Cobol applications up to speed.
+</p>
+
+<h1>This environment</h1>
+<p>
+This is an Ubuntu Linux VM configured with GNU Cobol. It has no database installed, and is not meant to emulate mainframe Cobol precisely. The purpose is to provide a working environment for a few sample programs that illustrate techniques you can transfer to the mainframe environment to implement automated tests for the applications you support.
+</p>
+
+<h2>Batch programs</h2>
+
+<h3>Build script for batch programs</h3>
+<p>
+In languages like Java and C++, a "unit test" generally exercises a single path through a single method or function. The conceptual equivalent of a "method" in Cobol is a <em>paragraph</em>. To support unit testing, then, we need a way to perform a single paragraph in a Cobol program and provide it with exactly the input values we need to support the test case, with no side effects. The test cases have to be runnable in any order and to have no dependencies on one another, and when one of them fails the rest of them must be able to continue.
+</p>
+<p>
+But a paragraph is not a method or function. It cannot accept arguments, and any changes it makes to the WORKING-STORAGE SECTION apply to the whole program. We deal with this by inserting the unit test cases into the source of the program we want to test prior to compilation, and by defining a few coding conventions that prevent our interfering with parts of the program we are not trying to test. We've provided a build script that carries out the steps needed to accomplish this and sample application code to illustrate the coding conventions.
+</p>
+<p>
+The build script is called <span class="code">cobuild</span>. It will be easier and quicker for you to read the source and run the script with different arguments than it would be to read a detailed description here. To see the usage help for the script, run  it with the <span class="code">--help</span> option:
+</p>
+<p>
+<pre class="code box">
+cobuild --help
+</pre>
+</p>
+<p>
+This produces output like the following:
+</p>
+<p align="center">
+<img src="Documentation/images/cobuild-help.png" align="center" border="0"/>
+</p>
+<p>
+In a nutshell, the <span class="code">cobuild</span> script does the following:
+</p>
+<p>
+<ol>
+<li>Compile the production code</li>
+<li>Compile the test code</li>
+<li>Run the unit tests</li>
+<li>Run the integration tests</li>
+<li>Move the executable to a target directory</li>
+</ol>
+</p>
+<p>
+If you have used Maven or Ant (or pretty much any build utility) on a Unix, Linux, or Windows platform, then you are familiar with the sequence of steps. 
+</p>
+<p>
+Here is the output produced by <span class="code">cobuild</span> when building one of the sample applications, the file converter:
+</p>
+<p align="center">
+<img src="Documentation/images/cobuild-output.png" align="center" border="0"/>
+</p>
+<p>
+This is the way we run <span class="code">cobuild</span> to build the sample program, <span class="code">convert.cbl</span>:
+</p>
+<p>
+<pre class="code box">
+cobuild -u convert-unit-tests -i ./integration-tests convert.cbl
+</pre>
+</p>
+<p>
+We tell <span class="code">cobuild</span> where to find our unit tests and integration tests, and we accept the default settings for all other options. When you explore the sample project you will see that <span class="code">convert-unit-tests</span> is a Cobol copybook and <span class="code">integration-tests</span> is a <span class="code">bash</span> script that prepares a couple of files, calls a test program written in Cobol, and checks the result.
+</p>
+<p>
+The focus of this document is older, "legacy" Cobol applications. With that in mind, we do not assume you will be working in an environment that has products like Dynamic Scripting, zUnit, or zOS UNIX installed. Even if other systems in your organization use such products, it's likely that the teams supporting legacy applications do not routinely use those products.
+</p>
+<p>
+Another challenge in using the available mainframe-focused products for test automation is that those products operate by connecting to the zOS system. Contemporary development methods depend on rapid turnaround of local builds that have no dependencies on systems beyond your development box. That means we prefer to be able to build our code and run unit and functional tests in isolation, on our laptops or workstations, with no need to connect to the host system or to &quot;real&quot; databases.
+</p>
+
+<h3>Automated unit tests (batch)</h3>
+<p>
+For unit testing, the <span class="code">cobuild</span> script copies the source program to a temporary file and adds test code to that file. We follow some conventions to keep the process relatively simple. Take a look at <span class="code">projects/file-converter/convert-unit-tests</span> to see how a unit test copybook is structured. The general idea is:
+</p>
+<p>
+<ul>
+<li>The production code is organized so that input/output processing and initialization logic are separated from "business logic." Small, discrete pieces of functionality are coded in separate paragraphs. Those paragraphs do not perform any I/O. This allows a unit test case to perform a single paragraph without requiring all the program's runtime dependencies to be in place.</li>
+<li>Unit test cases are coded as if/else blocks in a copybook. The build script inserts a copy statement immediately below the PROCEDURE DIVISION header in the temporary copy of the program. It also inserts a 77-level item in the WORKING-STORAGE SECTION named <span class="code">retcode</span>. Unit test code sets <span class="code">retcode</span> to a non-zero value when an assertion fails. The unit test code in the copybook must end by moving <span class="code">retcode</span> to <span class="code">return-code</span> and then doing a <span class="code">goback</span>. That way, the build script can react to different exit codes.</li>
+<li>The build script executes the copy of the program that has the unit test cases copied into its PROCEDURE DIVISION.</li>
+<li>Each unit test case sets up the test by setting values in the WORKING-STORAGE SECTION. Then it performs one or more paragraphs in the program under test, but does not execute any of the usual initialization logic that depends on the runtime environment. Finally, it compares values in WORKING-STORAGE with the values it expects to find when the paragraph functions correctly. When the comparison fails, the test case sets a non-zero value in <span class="code">retcode</span>, but does not terminate. That way, all the test cases can run and we can see the status of all of them.</li>
+</ul>
+</p>
+<p>
+The <span class="code">cobuild</span> script inserts a single COPY statement just after the PROCEDURE DIVISION header, to bring in the file where you have your unit tests coded. It does not support the insertion of multiple COPY statements. If you need to organize a large number of test cases for ease of maintenance or you prefer to group logically-related test cases for ease of comprehension, you can nest COPY statements within the main unit test file. 
+</p>
+
+<h3>Automated integration tests (batch)</h3>
+<p>
+No modifications to the program under test are necessary to support integration testing, but the nature of the integration tests depends on just what the program does. For the file conversion example, <span class="code">projects/file-converter</span>, an integration test runs a few representative input records through the conversion program and compares the actual output file with a file containing the expected output. A generic program that compares the contents of two sequential input files is provided in the <span class="code">file-converter</span> project. You can use this program to prepare integration test scripts for any application program that has a similar function. For programs that do other sorts of processing, you will have to write a special integration test driver. 
+</p>
+<p>
+The integration test run is set up and managed by a shell script. The build script takes the name of the integration test script as an argument and executes it at the appropriate point in the build process.
+</p>
+
+<h3>File Converter (projects/file-converter)</h3>
+<p>
+A common type of Cobol program still in use in corporate IT departments is a batch program that reads one or more input files, converts the records into a different format, and writes them to output files or databases. The file-converter project contains a simple file conversion program and demonstrates how we can write automated unit tests and integration tests for such a program. 
+</p>
+
+<h2>CICS programs</h2>
+
+<h3>Automated unit tests using IBM tools</h3>
+<p>
+Dynamic Scripting is a feature of CICS that supports test-driven development of web applications targeted to the CICS environment (among other things). If your organization already has Dynamic Scripting installed, you can also use it to drive automated tests for legacy CICS applications written in any language. Refer to this IBM Redbook for more information: <a href="http://www.redbooks.ibm.com/redbooks/pdfs/sg247924.pdf">Introduction to CICS Dynamic Scripting</a>.
+</p>
+<p>
+IBM's Rational Developer tools include a unit testing framework for zOS. It supports unit testing of application programs targeted to various IBM environments, including CICS among others. It is expensive, heavy, complicated, and requires a separate server running Red Hat Enterprise Linux or Suse Enterprise Linux. It is functional, but not something that would support a rapid development workflow that includes frequent local builds and continuous integration.
+</p>
+
+<h3>Automated unit tests the old-fashioned way</h3>
+<p>
+Most legacy CICS applications are CRUD apps &mdash; they perform <em>create</em>, <em>read</em>, <em>update</em>, and <em>delete</em> operations on some data store, controlled by a user interacting with the application through a terminal. Another common type of CICS application is a "pipeline" application that processes transactions by handing off a data structure through a chain of programs via XCTL commands. A listener task is triggered when an inbound request arrives via some communication mechanism (TCP/IP socket, IBM 3600 Pipeline LU, etc.) and it initiates the chain of programs.
+</p>
+<p>
+For these types of applications, we can write test programs that exercise the logic in production programs and verify they produce the correct results. The "unit" in this case is not a single paragraph, but a single CICS application program. When well designed, the individual programs in a CICS application will be fairly small and each will have a single purpose, making them well suited to unit testing.
+</p>
+<p>
+The basic pattern for a test case is to initialize a COMMAREA, LINK to the program under test, and then compare the contents of the COMMAREA with the expected results. (To test programs in isolation that normally are invoked via XCTL, we can LINK to them.) Finally, we append the test results to a file that accumulates results from all of our test programs. 
+</p>
+<p>
+To enable this approach, the CICS application code has to be organized such that the "business logic" piece can be invoked via LINK without accessing any external resources; that is, without trying to interact with BMS, File Control, or any databases. Some legacy programs might have to be refactored and separated out into multiple programs &mdash; one that only maps data values to and from the screen area and issues BMS commands; one that encapsulates the "business logic," and one or more that interact with data stores. Once this is done, the test program can LINK to the "business logic" program without any side effects.
+</p>
+<p>
+In addition, if we pass the names of any I/O interface programs in COMMAREA instead of hard-coding them, we have a quick-and-dirty "mocking" facility &mdash; we can prepare a fake I/O program that returns the values our test case requires, without the need to populate any real files or databases with test data.
+</p>
+<p>
+The procedure we have described so far still involves running the tests in a live CICS region, which does not quite give us proper isolation for rapid turnaround of unit tests. To enable off-platform, isolated unit testing in a way that supports contemporary continuous integration work flows, we need to fake out the CICS runtime environment. In this sandbox environment, we accomplish this by using a custom-written EXEC CICS preprocessor that replaces CICS commands with calls to fake CICS modules. This sort of fake module is called a &quot;test double.&quot; Test doubles are commonly used to isolate the code under test from external runtime dependencies.
+</p>
+
+<h3>Automated integration &amp; acceptance tests using IBM or third-party tools</h3>
+<p>
+This type of test uses 3270 terminal emulation to execute a scripted sequence of "user" actions against a CICS application. This level of testing does require real files and databases to exist and to be populated with appropriate test data.
+</p>
+<p>
+There is little value in rolling your own terminal emulator. We recommend identifying an appropriate product to support this kind of testing for your CICS applications. Some alternatives (not exhaustive):
+</p>
+<p>
+<ul>
+<li>The Dynamic Scripting features of CICS provide a toolset familiar to Java web application developers for the zOS CICS platform. If your organization has these features installed, you can write JUnit tests in Java to exercise legacy CICS Command Level application programs written in Cobol, PL/I, or Assembly language, as well as CICS-hosted webapps written in Java or PHP.</li>
+<li>If you don't have access to Dynamic Scripting, you can roll your own CICS test harness that invokes programs using LINK and makes assertions about the contents of COMMAREA. This may require some refactoring of legacy programs that commingle BMS logic with "business" logic.</li>
+<li>Cucumber acceptance testing framework. This solution requires Ruby, the te3270 Ruby gem, and any of the commercial 3270 emulators that te3270 supports. Due to the dependency on third-party commercial 3270 emulators, the Cucumber environment has to run on a Microsoft Windows system. Compared with mainframe-based commercial products like CA Verify and Hiperstation, this solution offers the flexibility to do acceptance test driven development (ATDD) in addition to conventional automated regression testing.</li>
+<li>CA Verify for CICS. This is a mainframe-hosted commercial product that supports several types of automated testing for CICS applications. The vendor literature claims CA Verify supports &quot;unit testing,&quot; but that description appears to assume a relatively expansive definition of &quot;unit&quot; as compared with generally-accepted software development practices.</li>
+<li>Compuware QA Hiperstation. This is a mainframe-hosted commercial product that supports automated regression and security testing for CICS as well as other mainframe-based transaction processing environments such as VTAM and TCP/IP.</li>
+</ul>
+</p>
+
+<h3>Automated integration &amp; acceptance tests the old-fashioned way</h3>
+<p>
+It is straightforward to write integration tests and acceptance tests using the same approach as described above for unit tests of CICS program. The difference between an integration test and a unit test is the scope of the code under test; a unit test exercises a single interaction with a single CICS program, while an integration test exercises a series of interactions that may involve multiple CICS programs and that may access real external resources. The mechanics of writing such a test program are the same as for unit tests.
+</p>
+</body>
+</html>

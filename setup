@@ -1,70 +1,133 @@
 #!/bin/bash
 #======================================================================================
-# Configure an instance of Ubuntu Linux to support Java development training courses.
+# Configure an instance of Ubuntu Linux to support Cobol development training courses.
 #
 # Arguments:
 # (None)		
 #
 # Version: 1.1.0
-# Date: 03-May-2014
+# Date: 10-July-2014
 # Author: Dave Nicolette
 #======================================================================================
-export INSTALL_DIR="$HOME/provision-java-dev-training-vm"
+export INSTALL_DIR="$HOME/provision-cobol-dev-training-vm"
 export COMMON_DIR="provision-ubuntu-common"
 
-git clone "git://github.com/neopragma/$COMMON_DIR"
+git clone "https://github.com/neopragma/$COMMON_DIR"
+
+echo
+echo '============================================================='
+echo 'Installing prerequisite packages to support GNU COBOL...'
 
 "./$COMMON_DIR/install_build_support"
-"./$COMMON_DIR/install_sublime_text_3"
-sudo apt-get -y -f install aptitude curl
+"./$COMMON_DIR/install_aptitude"
+sudo apt-get -y -f install libgmp3-dev libtool libdb-dev ncurses-dev libncurses-dev
 
 echo
 echo '============================================================='
-echo 'Installing Microsoft TrueType fonts...'
+echo 'Installing Berkeley DB...'
 
-sudo apt-get install -y -f ttf-mscorefonts-installer
-
-echo
-echo '============================================================='
-echo 'Installing Java Development Kit...'
-
-sudo apt-get install -y -f openjdk-7-jdk
-
-echo
-echo '============================================================='
-echo 'Installing Maven...'
-
-sudo apt-get install -y -f maven
-
-# =============================================================
-# Installing Eclipse...
-
-"./$COMMON_DIR/install_eclipse_kepler"
-
-echo
-echo '============================================================='
-echo 'Installing RVM, Ruby, and Bundler...'
-
-pushd "$HOME"
-\curl -sSL https://get.rvm.io | bash -s stable --ruby=2.1
-echo 'source "$HOME/.rvm/scripts/rvm"' >> .bashrc
-. .bashrc
-rvm --default use 2.1.1
-gem install bundler
+# download it from oracle somehow (curl or wget)
+# in the meantime (hack)...
+mkdir -p "$HOME/.berkeley_db"
+cp db-6.1.19.NC.tar.gz "$HOME/.berkeley_db"
+pushd "$HOME/.berkeley_db"
+tar -zxvf db-6.1.19.NC.tar.gz
+cd db-6.1.19.NC/build_unix
+../dist/configure
+make
+sudo make install
 popd
+
+echo
+echo '============================================================='
+echo 'Installing GNU COBOL...'
+
+mkdir -p "$HOME/.cobol"
+pushd "$HOME/.cobol"
+wget -O gnu-cobol.tar.gz http://sourceforge.net/projects/open-cobol/files/latest/download/gnu-cobol/1.1/gnu-cobol-1.1.tar.gz
+tar xvfz gnu-cobol.tar.gz
+cd gnu-cobol-1.1
+
+echo
+echo 'Will now run:'
+echo '    ./configure'
+echo '    make'
+echo '    make check'
+echo '    sudo make install'
+echo
+echo 'Expect to see a few build errors in the make step.'
+echo 'Depend on the results of make check to determine whether setup was successful.'
+echo
+
+./configure --with-db
+make
+make check > make-check-output
+if [ $(grep 'error' make-check-output) ]; then
+  echo 'GNU COBOL make check had failing tests or other errors.'
+  echo 'Please investigate and correct errors.'
+  echo "make check output was written to: $PWD/make-check-output."
+  exit 1
+fi
+sudo make install
+# workaround for known problem - make puts libcob.so.1 in the wrong directory
+sudo ln -s /usr/local/lib/libcob.so.1 /usr/lib/libcob.so.1
+popd
+
+echo
+echo '============================================================='
+echo "Creating aliases for GNU COBOL commands..."
+
+echo 'alias cobc="$HOME/.cobol/gnu-cobol-1.1/cobc/cobc $@"' >> "$HOME/.bash_aliases"
+
+echo
+echo '============================================================='
+echo "Copying documentation to desktop..."
+
+cp -Rf Documentation "$HOME/Desktop"
+cp help.html "$HOME/Desktop"
+
+pushd "$HOME/Desktop"
+wget -O 'OpenCOBOL Programmers Guide.pdf' 'http://opencobol.add1tocobol.com/OpenCOBOL%20Programmers%20Guide.pdf'
+wget -O 'autoconf.pdf' 'http://www.gnu.org/software/autoconf/manual/autoconf.pdf'
+popd
+
+echo
+echo '============================================================='
+echo 'Installing Sublime Text 3...'
+
+"./$COMMON_DIR/install_sublime_text_3"
+
+# TODO - custom configuration of Sublime Text 3 for Cobol
+
+echo
+echo '============================================================='
+echo "Copying sample programs to $HOME/.cobol/sample-programs...'
+
+cp -Rf add1tocobol-sample-programs "$HOME/.cobol/"
 
 echo
 echo '============================================================='
 echo 'Setting the desktop background image...'
 
-
-# Install ArgoUML
-./install_argouml
-
 mkdir -p "$HOME/.backgrounds"
-cp -f java-background.png "$HOME/.backgrounds/."
-gsettings set org.gnome.desktop.background picture-uri file:///home/student/.backgrounds/java-background.png
+cp -f cobol-background.jpg "$HOME/.backgrounds/."
+gsettings set org.gnome.desktop.background picture-uri file:///home/neopragma/.backgrounds/cobol-background.jpg
+
+echo
+echo '============================================================='
+echo 'Creating project directory...'
+
+cp -R projects "$HOME/projects"
+
+echo
+echo '============================================================='
+echo "Adding $HOME/bin to PATH..."
+
+mkdir -p "$HOME/bin"
+echo "export PATH=$HOME/bin:$PATH" >> "$HOME/.bashrc
+
+echo
+echo '============================================================='
+echo 'Verifying the setup...'
 
 ./verify
-
-

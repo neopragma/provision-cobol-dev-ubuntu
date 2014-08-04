@@ -1,16 +1,16 @@
 #!/bin/bash
 #===============================================================================
 # See if this instance appears to have everything installed as expected.
-# This is for provision-java-dev-training-vm.
+# This is for provision-cobol-dev-ubuntu.
 #
-# Version: 1.1.0 
-# Date: 03 May 2014
+# Version: 0.1 
+# Date: 04 Aug 2014
 # Author: Dave Nicolette
 #===============================================================================
 
 echo
 echo '============================================================='
-echo 'Verifying configuration of Java development training VM...'
+echo 'Verifying configuration of Cobol development environment...'
 
 declare -i errors=0
 
@@ -21,7 +21,6 @@ pkg[${#pkg[@]}]="linux-headers-$(uname -r)"
 pkg[${#pkg[@]}]='dkms'
 pkg[${#pkg[@]}]='python-software-properties'
 pkg[${#pkg[@]}]='sublime-text-installer'
-pkg[${#pkg[@]}]='openjdk-7-jdk'
 
 for name in "${pkg[@]}"
 do
@@ -34,7 +33,7 @@ do
 done
 
 declare -a app
-app[${#app[@]}]="/usr/bin/eclipse"
+app[${#app[@]}]="/usr/local/bin/cobc"
 
 for name in "${app[@]}"
 do
@@ -45,20 +44,5 @@ do
       errors="${errors}+1"
   fi 
 done
-
-source "$HOME/.rvm/scripts/rvm"
-if [[ "$(rvm --version)" ]]; then
-    echo "$(rvm current) is installed with rvm"
-else
-    echo "rvm expected but is not installed - ERROR"
-    errors="${errors}+1"
-fi
-
-if [[ -e "$HOME/.argouml/argouml-0.34/argouml.jar" ]]; then
-    echo "ArgoUML 0.34 is installed"
-else
-    echo "ArgoUML expected but is not installed - ERROR"
-    errors="${errors}+1"
-fi
 
 test "${errors}" -eq 0 && echo "...configuration is as expected." || echo "...${errors} expected package(s) or application(s) not found! Configuration may not function as desired." 
