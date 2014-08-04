@@ -57,6 +57,13 @@ cd ~/provision-cobol-dev-ubuntu
 
 The last thing the setup script does is to run a script named verify. Check the output from verify and see if any of the installation steps failed. If so, investigate and resolve the problems. If you discover a problem with the setup script, fix it and make a pull request.
 
+## Sample projects
+
+A couple of sample projects are available. They include bash scripts to run compiles and tests, sample source programs, and a practical directory structure for each project. Those elements may be used as templates to set up new projects.
+
+* https://github.com/neopragma/cobol-unit-test - automated unit testing and functional testing for batch programs
+* https://github.com/neopragma/cics-unit-test - automated unit testing for CICS programs
+
 
 
 
