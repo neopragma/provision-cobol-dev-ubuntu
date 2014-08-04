@@ -86,9 +86,8 @@ echo "Copying documentation to desktop..."
 cp -Rf Documentation "$HOME/Desktop"
 cp help.html "$HOME/Desktop"
 
-pushd "$HOME/Desktop"
+pushd "$HOME/Desktop/Documentation"
 wget -O 'OpenCOBOL Programmers Guide.pdf' 'http://opencobol.add1tocobol.com/OpenCOBOL%20Programmers%20Guide.pdf'
-wget -O 'autoconf.pdf' 'http://www.gnu.org/software/autoconf/manual/autoconf.pdf'
 popd
 
 echo
@@ -98,6 +97,25 @@ echo 'Installing Sublime Text 3...'
 "./$COMMON_DIR/install_sublime_text_3"
 
 # TODO - custom configuration of Sublime Text 3 for Cobol
+
+echo
+echo '============================================================='
+echo 'Creating projects directory...'
+
+mkdir -p "$HOME/projects"
+
+echo
+echo '============================================================='
+echo 'Creating bin directory...'
+
+mkdir -p "$HOME/bin"
+
+echo
+echo '============================================================='
+echo "Adding $HOME/bin to PATH..."
+
+mkdir -p "$HOME/bin"
+echo "export PATH=$HOME/bin:$PATH" >> "$HOME/.bashrc"
 
 echo
 echo '============================================================='
@@ -115,16 +133,16 @@ gsettings set org.gnome.desktop.background picture-uri file:///home/neopragma/.b
 
 echo
 echo '============================================================='
-echo 'Creating project directory...'
+echo 'Removing default directories not needed for this environment...'
 
-cp -R projects "$HOME/projects"
-
-echo
-echo '============================================================='
-echo "Adding $HOME/bin to PATH..."
-
-mkdir -p "$HOME/bin"
-echo "export PATH=$HOME/bin:$PATH" >> "$HOME/.bashrc
+pushd "$HOME"
+rm -r Music
+rm -r Pictures
+rm -r Public
+rm -r Templates
+rm -r Videos
+rm examples.desktop
+popd
 
 echo
 echo '============================================================='
