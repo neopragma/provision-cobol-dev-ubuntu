@@ -96,7 +96,17 @@ echo 'Installing Sublime Text 3...'
 
 "./$COMMON_DIR/install_sublime_text_3"
 
-# TODO - custom configuration of Sublime Text 3 for Cobol
+echo
+echo '============================================================='
+echo 'Installing Sublime Text 3 syntax highlighting and autocompletion for Cobol...'
+
+mkdir -p "$HOME/temp"
+pushd "$HOME/temp"
+wget -O sublime-cobol.zip https://bitbucket.org/bitlang/sublime_cobol/get/8eedcdad1f3f.zip
+# `unzip file.zip -d targetdir' doesn't appear to work when the target directory already exists
+unzip sublime-cobol.zip
+cp -R bitlang* "$HOME/.config/sublime-text-3/Packages/User"
+popd
 
 echo
 echo '============================================================='
