@@ -14,7 +14,7 @@ Open a browser and navigate to http://www.ubuntu.com. Download the iso for the v
 
 ### Step 2 - Create VM
 
-Using the virtualization product you want your students to use, create a VM and install Ubuntu on it. This procedure has been tested with the following virtualization products:
+Using the virtualization product you want to use, create a VM and install Ubuntu on it. This procedure has been tested with the following virtualization products:
 
 * VMware Player 6.0.2 Linux 64-bit
 
