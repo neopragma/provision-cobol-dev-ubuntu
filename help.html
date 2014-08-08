@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Automated testing for Cobol programs</title>
+<title>Cobol development environment</title>
 <style>
 h1, h2, h3, h4 {
 	font-family: Verdana, Arial, Lucida Sans, sans-serif;	
@@ -32,39 +32,14 @@ li {
 </head>
 <body>
 
-<h1>Automated testing for Cobol programs</h1>
+<h1>Cobol development environment</h1>
 <p>
-Automated testing has become a standard and expected practice for many kinds of applications written in many different languages for many different platforms, but it is a latecomer in the mainframe Cobol world. Most programmers who support mainframe Cobol applications don't use automated testing. Many have never even heard of it. Test-first development is even less common in the mainframe world.
-</p>
-<p>
-IBM has never stopped evolving the mainframe platform to keep up with the times. Today, the venerable online transaction monitor CICS can be used as a high-end HTTP server hosting web applications written in Java and built with test-driven development using JUnit; not very different from similar technology stacks on other platforms. That's great news for the relatively few shops that use CICS in that way, but it is not the problem facing the majority of corporate IT shops. 
-</p>
-<p>
-Far and away the most typical case is the IT shop that has a significant number of legacy Cobol applications, both batch and online, that encapsulate core business rules supporting mission-critical operations. These applications were written long ago and do not follow contemporary software design conventions. It is no small task to migrate these applications off the mainframe platform. As long as IBM continues support for the platform, these applications can live on indefinitely. Often, there is no practical business case to justify rewriting them. 
-</p>
-<p>
-The applications are supported by programmers who are not in the habit of writing automated test cases. The practice simply has not become part of the mainframe programming culture. Even if it crossed their minds to do so, most mainframe programmers would have to roll their own tools to make it happen. IBM does sell tools to support this, but an IT department that is not doing new development in Cobol will have a hard time justifying the expense. We have to deal with the applications as they are.
-</p>
-<p>
-Regardless of the difficulties, the pace of change has become so rapid that companies simply can't take as much time to get software changes into production as they used to. Modifications to legacy applications have the same short time to market requirements as new applications running on other platforms. That means we must find ways to minimize defects through test-driven development and deliver rapidly through automation of system testing and deployment. This sandbox environment offers some examples and suggestions for bringing legacy batch and CICS Cobol applications up to speed.
+This is an Ubuntu Linux VM configured with GNU Cobol. It has no database installed, and is not meant to emulate mainframe Cobol precisely. The purpose is to provide a basic working environment for Cobol development that doesn't require connectivity to a mainframe system. 
 </p>
 
-<h1>This environment</h1>
+<h2>Build script for batch programs</h2>
 <p>
-This is an Ubuntu Linux VM configured with GNU Cobol. It has no database installed, and is not meant to emulate mainframe Cobol precisely. The purpose is to provide a working environment for a few sample programs that illustrate techniques you can transfer to the mainframe environment to implement automated tests for the applications you support.
-</p>
-
-<h2>Batch programs</h2>
-
-<h3>Build script for batch programs</h3>
-<p>
-In languages like Java and C++, a "unit test" generally exercises a single path through a single method or function. The conceptual equivalent of a "method" in Cobol is a <em>paragraph</em>. To support unit testing, then, we need a way to perform a single paragraph in a Cobol program and provide it with exactly the input values we need to support the test case, with no side effects. The test cases have to be runnable in any order and to have no dependencies on one another, and when one of them fails the rest of them must be able to continue.
-</p>
-<p>
-But a paragraph is not a method or function. It cannot accept arguments, and any changes it makes to the WORKING-STORAGE SECTION apply to the whole program. We deal with this by inserting the unit test cases into the source of the program we want to test prior to compilation, and by defining a few coding conventions that prevent our interfering with parts of the program we are not trying to test. We've provided a build script that carries out the steps needed to accomplish this and sample application code to illustrate the coding conventions.
-</p>
-<p>
-The build script is called <span class="code">cobuild</span>. It will be easier and quicker for you to read the source and run the script with different arguments than it would be to read a detailed description here. To see the usage help for the script, run  it with the <span class="code">--help</span> option:
+The build script for batch programs is called <span class="code">cobuild</span>. It will be easier and quicker for you to read the source and run the script with different arguments than it would be to read a detailed description here. To see the usage help for the script, run  it with the <span class="code">--help</span> option:
 </p>
 <p>
 <pre class="code box">
@@ -90,10 +65,10 @@ In a nutshell, the <span class="code">cobuild</span> script does the following:
 </ol>
 </p>
 <p>
-If you have used Maven or Ant (or pretty much any build utility) on a Unix, Linux, or Windows platform, then you are familiar with the sequence of steps. 
+If you have used Maven or Ant (or pretty much any build utility) on a Unix, Linux, or Windows platform, then you are familiar with the general sequence of steps. 
 </p>
 <p>
-Here is the output produced by <span class="code">cobuild</span> when building one of the sample applications, the file converter:
+Here is the output produced by <span class="code">cobuild</span> when building one of the sample applications, the file converter (see <a href="https://github.com/neopragma/cobol-unit-test">https://github.com/neopragma/cobol-unit-test</a>):
 </p>
 <p align="center">
 <img src="Documentation/images/cobuild-output.png" align="center" border="0"/>
@@ -107,30 +82,14 @@ cobuild -u convert-unit-tests -i ./integration-tests convert.cbl
 </pre>
 </p>
 <p>
-We tell <span class="code">cobuild</span> where to find our unit tests and integration tests, and we accept the default settings for all other options. When you explore the sample project you will see that <span class="code">convert-unit-tests</span> is a Cobol copybook and <span class="code">integration-tests</span> is a <span class="code">bash</span> script that prepares a couple of files, calls a test program written in Cobol, and checks the result.
+We tell <span class="code">cobuild</span> where to find our unit tests and integration tests, and we accept the default settings for all other options. When you explore the sample project you will see that <span class="code">convert-unit-tests</span> is a Cobol copybook and <span class="code">integration-tests</span> is a <span class="code">bash</span> shell script that prepares a couple of files, calls a test program written in Cobol, and checks the result.
 </p>
 <p>
-The focus of this document is older, "legacy" Cobol applications. With that in mind, we do not assume you will be working in an environment that has products like Dynamic Scripting, zUnit, or zOS UNIX installed. Even if other systems in your organization use such products, it's likely that the teams supporting legacy applications do not routinely use those products.
-</p>
-<p>
-Another challenge in using the available mainframe-focused products for test automation is that those products operate by connecting to the zOS system. Contemporary development methods depend on rapid turnaround of local builds that have no dependencies on systems beyond your development box. That means we prefer to be able to build our code and run unit and functional tests in isolation, on our laptops or workstations, with no need to connect to the host system or to &quot;real&quot; databases.
+This environment can be used to develop Cobol applications to be deployed on Unix, Linux, Windows, or zOS platforms. It can also be used as an off-platform development and unit test environment for supporting existing &quot;legacy&quot; Cobol programs. You can do much of the coding and testing work for these applications on this environment and then upload your code to the mainframe system, where you need only do end-to-end functional testing and system-level testing such as performance testing.
 </p>
 
-<h3>Automated unit tests (batch)</h3>
-<p>
-For unit testing, the <span class="code">cobuild</span> script copies the source program to a temporary file and adds test code to that file. We follow some conventions to keep the process relatively simple. Take a look at <span class="code">projects/file-converter/convert-unit-tests</span> to see how a unit test copybook is structured. The general idea is:
-</p>
-<p>
-<ul>
-<li>The production code is organized so that input/output processing and initialization logic are separated from "business logic." Small, discrete pieces of functionality are coded in separate paragraphs. Those paragraphs do not perform any I/O. This allows a unit test case to perform a single paragraph without requiring all the program's runtime dependencies to be in place.</li>
-<li>Unit test cases are coded as if/else blocks in a copybook. The build script inserts a copy statement immediately below the PROCEDURE DIVISION header in the temporary copy of the program. It also inserts a 77-level item in the WORKING-STORAGE SECTION named <span class="code">retcode</span>. Unit test code sets <span class="code">retcode</span> to a non-zero value when an assertion fails. The unit test code in the copybook must end by moving <span class="code">retcode</span> to <span class="code">return-code</span> and then doing a <span class="code">goback</span>. That way, the build script can react to different exit codes.</li>
-<li>The build script executes the copy of the program that has the unit test cases copied into its PROCEDURE DIVISION.</li>
-<li>Each unit test case sets up the test by setting values in the WORKING-STORAGE SECTION. Then it performs one or more paragraphs in the program under test, but does not execute any of the usual initialization logic that depends on the runtime environment. Finally, it compares values in WORKING-STORAGE with the values it expects to find when the paragraph functions correctly. When the comparison fails, the test case sets a non-zero value in <span class="code">retcode</span>, but does not terminate. That way, all the test cases can run and we can see the status of all of them.</li>
-</ul>
-</p>
-<p>
-The <span class="code">cobuild</span> script inserts a single COPY statement just after the PROCEDURE DIVISION header, to bring in the file where you have your unit tests coded. It does not support the insertion of multiple COPY statements. If you need to organize a large number of test cases for ease of maintenance or you prefer to group logically-related test cases for ease of comprehension, you can nest COPY statements within the main unit test file. 
-</p>
+
+<
 
 <h3>Automated integration tests (batch)</h3>
 <p>
