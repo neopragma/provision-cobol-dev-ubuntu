@@ -129,7 +129,7 @@ echo "export PATH=$HOME/bin:$PATH" >> "$HOME/.bashrc"
 
 echo
 echo '============================================================='
-echo "Copying sample programs to $HOME/.cobol/sample-programs...'
+echo "Copying sample programs to $HOME/.cobol/sample-programs..."
 
 cp -Rf add1tocobol-sample-programs "$HOME/.cobol/"
 
