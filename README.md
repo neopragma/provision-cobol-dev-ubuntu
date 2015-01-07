@@ -16,7 +16,10 @@ Open a browser and navigate to http://www.ubuntu.com. Download the iso for the v
 
 Using the virtualization product you want to use, create a VM and install Ubuntu on it. This procedure has been tested with the following virtualization products:
 
-* VMware Player 6.0.2 Linux 64-bit
+* VMware Player 6.0.2 on Ubuntu Linux 14.04 LTS 64-bit
+* VMware Player 6.0.2 on Windows 8.1
+* VMware Fusion 7 on OS X 10.9.5
+* VirtualBox 4.3.20 on OS X 10.0.5
 
 ### Step 3 - Apply system updates
 
@@ -63,11 +66,3 @@ A couple of sample projects are available. They include bash scripts to run comp
 
 * https://github.com/neopragma/cobol-unit-test - automated unit testing and functional testing for batch programs
 * https://github.com/neopragma/cics-unit-test - automated unit testing for CICS programs
-
-
-
-
-
-
-
-
