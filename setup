@@ -26,16 +26,24 @@ echo
 echo '============================================================='
 echo 'Installing Berkeley DB...'
 
-# download it from oracle somehow (curl or wget)
-# in the meantime (hack)...
 mkdir -p "$HOME/.berkeley_db"
-cp db-6.1.19.NC.tar.gz "$HOME/.berkeley_db"
 pushd "$HOME/.berkeley_db"
-tar -zxvf db-6.1.19.NC.tar.gz
-cd db-6.1.19.NC/build_unix
-../dist/configure
+wget -O berkeley-db.tar.gz http://download.oracle.com/berkeley-db/db-6.1.19.tar.gz
+tar xvfz berkeley-db.tar.gz
+cd db-6.1.19
+cd build_unix && ../dist/configure \
+   --prefix=/usr      \
+   --enable-compat185 \
+   --enable-dbm       \
+   --disable-static   \
+   --enable-cxx &&
 make
-sudo make install
+sudo make docdir=/usr/share/doc/db-6.1.19 install &&
+sudo chown -v -R root:root                        \
+      /usr/bin/db_*                          \
+      /usr/include/db{,_185,_cxx}.h          \
+      /usr/lib/libdb*.{so,la}                \
+      /usr/share/doc/db-6.1.19
 popd
 
 echo
