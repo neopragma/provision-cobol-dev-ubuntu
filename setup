@@ -20,7 +20,7 @@ echo 'Installing prerequisite packages to support GNU COBOL...'
 
 "./$COMMON_DIR/install_build_support"
 "./$COMMON_DIR/install_aptitude"
-sudo apt-get -y -f install libgmp3-dev libtool libdb-dev ncurses-dev libncurses-dev
+sudo -E apt-get -y -f install libgmp3-dev libtool libdb-dev ncurses-dev libncurses-dev
 
 echo
 echo '============================================================='
