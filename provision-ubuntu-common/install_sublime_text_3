@@ -1,0 +1,41 @@
+#!/bin/bash
+#======================================================================================
+# Install and configure Sublime Text 3 on Ubuntu Linux.
+#
+# Arguments:
+# (None)		
+#
+# Version: 1.0.0
+# Date: 01-Jan-2014
+# Author: Dave Nicolette
+#======================================================================================
+
+echo
+echo '============================================================='
+echo 'Installing Sublime Text 3...'
+
+sudo -E apt-get install -y -f python-software-properties
+sudo -E add-apt-repository -y ppa:webupd8team/sublime-text-3
+sudo -E apt-get update
+sudo -E apt-get -y -f install sublime-text-installer
+
+echo
+echo '============================================================='
+echo 'Adding Sublime Text 3 menu and desktop files...'
+
+sudo cp debian-menu/sublime-text /usr/share/menu/.
+sudo update-menus
+sudo cp "gnome-desktop/Sublime Text 3.desktop" /usr/share/applications/.
+
+echo
+echo '============================================================='
+echo 'Copying Sublime Text 3 user preference files...'
+
+cp -a sublime-text-3/config/* "$HOME/.config/sublime-text-3/Packages/User"
+
+echo
+echo '============================================================='
+echo 'Installing Sublime Text 3 Package Control...'
+
+wget -O "$HOME/.config/sublime-text-3/Installed Packages/Package Control.sublime-package" "https://sublime.wbond.net/Package Control.sublime-package"
+
