@@ -5,8 +5,8 @@
 # Arguments:
 # (None)		
 #
-# Version: 1.1.0
-# Date: 10-July-2014
+# Version: 2.0.0
+# Date: 24-November-2020
 # Author: Dave Nicolette
 #======================================================================================
 export INSTALL_DIR="$HOME/provision-cobol-dev-ubuntu"
@@ -16,7 +16,7 @@ git clone "https://github.com/neopragma/$COMMON_DIR"
 
 echo
 echo '============================================================='
-echo 'Installing prerequisite packages to support GNU COBOL...'
+echo 'Installing prerequisite packages to support GnuCOBOL'
 
 "./$COMMON_DIR/install_build_support"
 "./$COMMON_DIR/install_aptitude"
@@ -24,7 +24,7 @@ sudo -E apt-get -y -f install libgmp3-dev libtool libdb-dev ncurses-dev libncurs
 
 echo
 echo '============================================================='
-echo 'Installing Berkeley DB...'
+echo 'Installing Berkeley DB 6.1.19'
 
 mkdir -p "$HOME/.berkeley_db"
 pushd "$HOME/.berkeley_db"
@@ -48,122 +48,14 @@ popd
 
 echo
 echo '============================================================='
-echo 'Installing GNU COBOL...'
+echo 'Installing GnuCOBOL 3.1 RC1'
 
 mkdir -p "$HOME/.cobol"
 pushd "$HOME/.cobol"
-wget -O gnu-cobol.tar.gz http://sourceforge.net/projects/open-cobol/files/latest/download/gnu-cobol/1.1/gnu-cobol-1.1.tar.gz
-tar xvfz gnu-cobol.tar.gz
-cd gnu-cobol-1.1
-
-echo
-echo 'Will now run:'
-echo '    ./configure'
-echo '    make'
-echo '    make check'
-echo '    sudo make install'
-echo
-echo 'Expect to see a few build errors in the make step.'
-echo 'Depend on the results of make check to determine whether setup was successful.'
-echo
-
+wget -O gnucobol.tar.xz http://sourceforge.net/projects/gnucobol/files/latest/download/gnucobol-3.1-rc1.tar.xz/download
+tar xvfz gnucobol.tar.xz
+cd gnucobol-3.1-rc1
 ./configure --with-db
 make
-make check > make-check-output
-if [ $(grep 'error' make-check-output) ]; then
-  echo 'GNU COBOL make check had failing tests or other errors.'
-  echo 'Please investigate and correct errors.'
-  echo "make check output was written to: $PWD/make-check-output."
-  exit 1
-fi
 sudo make install
-# workaround for known problem - make puts libcob.so.1 in the wrong directory
-sudo ln -s /usr/local/lib/libcob.so.1 /usr/lib/libcob.so.1
-popd
-
-echo
-echo '============================================================='
-echo "Creating aliases for GNU COBOL commands..."
-
-echo 'alias cobc="$HOME/.cobol/gnu-cobol-1.1/cobc/cobc $@"' >> "$HOME/.bash_aliases"
-
-echo
-echo '============================================================='
-echo "Copying documentation to desktop..."
-
-cp -Rf Documentation "$HOME/Desktop"
-cp help.html "$HOME/Desktop"
-
-pushd "$HOME/Desktop/Documentation"
-wget -O 'OpenCOBOL Programmers Guide.pdf' 'http://opencobol.add1tocobol.com/OpenCOBOL%20Programmers%20Guide.pdf'
-popd
-
-echo
-echo '============================================================='
-echo 'Installing Sublime Text 3...'
-
-"./$COMMON_DIR/install_sublime_text_3"
-
-echo
-echo '============================================================='
-echo 'Installing Sublime Text 3 syntax highlighting and autocompletion for Cobol...'
-
-mkdir -p "$HOME/temp"
-pushd "$HOME/temp"
-wget -O sublime-cobol.zip https://bitbucket.org/bitlang/sublime_cobol/get/8eedcdad1f3f.zip
-# `unzip file.zip -d targetdir' doesn't appear to work when the target directory already exists
-unzip sublime-cobol.zip
-cp -R bitlang* "$HOME/.config/sublime-text-3/Packages/User"
-popd
-
-echo
-echo '============================================================='
-echo 'Creating projects directory...'
-
-mkdir -p "$HOME/projects"
-
-echo
-echo '============================================================='
-echo 'Creating bin directory...'
-
-mkdir -p "$HOME/bin"
-
-echo
-echo '============================================================='
-echo "Adding $HOME/bin to PATH..."
-
-mkdir -p "$HOME/bin"
-echo "export PATH=$HOME/bin:$PATH" >> "$HOME/.bashrc"
-
-echo
-echo '============================================================='
-echo "Copying sample programs to $HOME/.cobol/sample-programs..."
-
-cp -Rf add1tocobol-sample-programs "$HOME/.cobol/"
-
-echo
-echo '============================================================='
-echo 'Setting the desktop background image...'
-
-mkdir -p "$HOME/.backgrounds"
-cp -f cobol-background.jpg "$HOME/.backgrounds/."
-gsettings set org.gnome.desktop.background picture-uri file:///home/neopragma/.backgrounds/cobol-background.jpg
-
-echo
-echo '============================================================='
-echo 'Removing default directories not needed for this environment...'
-
-pushd "$HOME"
-rm -r Music
-rm -r Pictures
-rm -r Public
-rm -r Templates
-rm -r Videos
-rm examples.desktop
-popd
-
-echo
-echo '============================================================='
-echo 'Verifying the setup...'
-
-./verify
+sudo ldconfig

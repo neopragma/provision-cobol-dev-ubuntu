@@ -1,12 +1,13 @@
 # provision-cobol-dev-ubuntu
 
-Provision an instance of Ubuntu Linux with software to support software development using GNU COBOL. 
+Provision an instance of Ubuntu Linux with software to support software development using GnuCOBOL. 
 
 ## Steps
 
 The instructions assume you will provision a virtual machine with Ubuntu Linux. This has been tested with the following operating systems:
 
-* Ubuntu 14.04 LTS 64-bit
+* Ubuntu 14.04 LTS 64-bit 
+* Ubuntu 18.04.5 LTS 64-bit
 
 ### Step 1 - Download Ubuntu iso
 
@@ -14,12 +15,7 @@ Open a browser and navigate to http://www.ubuntu.com. Download the iso for the v
 
 ### Step 2 - Create VM
 
-Using the virtualization product you want to use, create a VM and install Ubuntu on it. This procedure has been tested with the following virtualization products:
-
-* VMware Player 6.0.2 on Ubuntu Linux 14.04 LTS 64-bit
-* VMware Player 6.0.2 on Windows 8.1
-* VMware Fusion 7 on OS X 10.9.5
-* VirtualBox 4.3.20 on OS X 10.0.5
+Using the virtualization product you want to use, create a VM and install Ubuntu on it.
 
 ### Step 3 - Apply system updates
 
